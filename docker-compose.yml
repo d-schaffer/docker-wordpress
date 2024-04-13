@@ -1,0 +1,43 @@
+name: docker-wp
+
+services:
+  wordpress:
+    image: wordpress:latest
+    ports:
+      - 80:80
+    volumes:
+      - ./config/php.conf.ini:/usr/local/etc/conf.d/conf.ini
+      - ./wp-app:/var/www/html
+      - ./plugin/XXX/:/var/www/html/wp-content/plugins/XXX/
+#      - ./theme/XXX/:/var/www/html/wp-content/themes/XXX/
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: "${DB_NAME}"
+      WORDPRESS_DB_USER: "${DB_USER}"
+      WORDPRESS_DB_PASSWORD: "${DB_PASSWORD}"
+  db:
+    image: mysql:8.3
+    ports:
+      - 3666:3306
+    volumes:
+      - ./docker/mysql/data/:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: "${DB_NAME}"
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: "${DB_USER}"
+      PMA_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+    ports:
+      - 10081:80
+    depends_on:
+      - db
+    links:
+      - db
+
+volumes:
+  db_data:
